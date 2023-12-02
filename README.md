@@ -5,4 +5,4 @@ frequently used automation content
 `git clone --recurse-submodules git@github.com:chomatz/ansible_toolbox.git`
 
 ## usage
-ansible-navigator -m stdout run <playbook.yml> --senv ANSIBLE_STDOUT_CALLBACK=yaml -- -e "nodes=<inventory_target>"
+`ansible-navigator -m stdout run <playbook.yml> --senv ANSIBLE_STDOUT_CALLBACK=yaml -- -e "nodes=<inventory_target>"`
