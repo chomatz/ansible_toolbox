@@ -2,3 +2,4 @@
 inv__*
 keys/*
 !keys/KEYS.md
+logs/*
