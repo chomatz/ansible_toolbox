@@ -1,0 +1,21 @@
+---
+
+ansible-navigator:
+  ansible:
+    inventory:
+      entries:
+        - inv__nodes.yml
+  execution-environment:
+    container-engine: podman
+    enabled: true
+    image: localhost/ansible:latest
+    pull:
+      policy: missing
+  logging:
+    level: debug
+    append: true
+    file: logs/ansible-navigator.log
+  playbook-artifact:
+    save-as: logs/{playbook_name}-artifact-{time_stamp}.json
+
+...
