@@ -1,5 +1,7 @@
 .*.swp
+collections/ansible_collections
 inv__*
 keys/*
 !keys/KEYS.md
 logs/*
+
