@@ -1,3 +1,6 @@
 [submodule "roles/prov__battlestation"]
 	path = roles/prov__battlestation
 	url = git@github.com:chomatz/prov__battlestation.git
+[submodule "roles/mgmt__package"]
+	path = roles/mgmt__package
+	url = git@github.com:chomatz/mgmt__package.git
