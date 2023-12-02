@@ -1,0 +1,13 @@
+---
+
+- name: provision fedora battle station
+  hosts: "{{ nodes }}"
+
+  tasks:
+
+    - name: deploy baseline configuration
+      include_role:
+        name: prov__battle_station
+        tasks_from: baseline.yml
+
+...
