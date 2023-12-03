@@ -10,4 +10,9 @@
         name: prov__battle_station
         tasks_from: baseline.yml
 
+    - name: deploy gnome desktop
+      include_role:
+        name: prov__battle_station
+        tasks_from: gnome.yml
+
 ...
