@@ -7,3 +7,6 @@
 [submodule "roles/repo__rpm_fusion"]
 	path = roles/repo__rpm_fusion
 	url = git@github.com:chomatz/repo__rpm_fusion.git
+[submodule "roles/prov__powerline"]
+	path = roles/prov__powerline
+	url = git@github.com:chomatz/prov__powerline.git
