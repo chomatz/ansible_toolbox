@@ -1,6 +1,6 @@
 ---
 
-- name: provision fedora battle station
+- name: provision battle station
   hosts: "{{ nodes }}"
 
   tasks:
