@@ -4,3 +4,6 @@
 [submodule "roles/repo__epel"]
 	path = roles/repo__epel
 	url = git@github.com:chomatz/repo__epel.git
+[submodule "roles/repo__rpm_fusion"]
+	path = roles/repo__rpm_fusion
+	url = git@github.com:chomatz/repo__rpm_fusion.git
