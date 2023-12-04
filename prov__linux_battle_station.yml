@@ -15,4 +15,12 @@
         name: prov__battle_station
         tasks_from: gnome.yml
 
+    - name: enable epel repositories
+      include_role:
+        name: repo__epel
+
+    - name: enable rpm_fusion repositories
+      include_role:
+        name: repo__rpm_fusion
+
 ...
