@@ -28,4 +28,9 @@
         name: prov__battle_station
         tasks_from: desktop.yml
 
+    - name: steam
+      include_role:
+        name: prov__battle_station
+        tasks_from: steam.yml
+
 ...
