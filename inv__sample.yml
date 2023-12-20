@@ -1,0 +1,48 @@
+---
+
+all:
+
+  children:
+
+    group_0:
+      hosts:
+        node1:
+          ansible_host: host1.domain.name
+        node2:
+          ansible_host: 192.168.1.1
+          ansible_user: username
+          ansible_become_pass: P@ssw0rd
+        node3:
+          ansible_host: node3.domain.name
+        node4:
+          ansible_host: node4.domain.name
+
+    group_1:
+      hosts:
+        node1:
+        node2:
+
+    group_2:
+      hosts:
+        node3:
+        node4:
+
+    group_3:
+      hosts:
+        node1:
+        node4:
+
+    group_4:
+      hosts:
+        node1:
+        node2:
+        node3:
+        node4:
+      vars:
+        ansible_user: ansible
+        ansible_ssh_private_key_file: keys/rsa/id_rsa
+        ansible_become: yes
+        ansible_become_method: sudo
+        ansible_become_pass: "BacteriaRiddenSesame9GrappleTutor"
+
+...
