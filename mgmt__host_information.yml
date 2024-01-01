@@ -1,0 +1,12 @@
+---
+
+- name: provision battle station
+  hosts: "{{ nodes }}"
+
+  tasks:
+
+    - name: displat host information
+      ansible.builtin.debug:
+        var: hostvars[inventory_hostname]
+
+...
