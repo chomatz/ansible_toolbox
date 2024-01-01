@@ -10,3 +10,6 @@
 [submodule "roles/prov__powerline"]
 	path = roles/prov__powerline
 	url = git@github.com:chomatz/prov__powerline.git
+[submodule "roles/mgmt__steam_deck"]
+	path = roles/mgmt__steam_deck
+	url = git@github.com:chomatz/mgmt__steam_deck.git
