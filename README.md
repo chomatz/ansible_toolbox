@@ -4,7 +4,7 @@ frequently used automation content
 ## clone the repository
 ```
 git clone --recurse-submodules git@github.com:chomatz/ansible_toolbox.git
-cd ansible_toolkit
+cd ansible_toolbox
 ```
 
 ## build the ansible container
