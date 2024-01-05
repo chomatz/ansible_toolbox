@@ -28,7 +28,7 @@
         name: prov__battle_station
         tasks_from: desktop.yml
 
-    - name: install steam
+    - name: deploy steam
       include_role:
         name: prov__battle_station
         tasks_from: steam.yml
