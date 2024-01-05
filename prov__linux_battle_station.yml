@@ -33,4 +33,9 @@
         name: prov__battle_station
         tasks_from: steam.yml
 
+    - name: deploy kvm
+      include_role:
+        name: prov__battle_station
+        tasks_from: kvm.yml
+
 ...
