@@ -7,10 +7,10 @@ git clone --recurse-submodules git@github.com:chomatz/ansible_toolbox.git
 cd ansible_toolbox
 ```
 
-## install podman
+## install required packages
 centos/fedora/redhat/rocky
 ```
-dnf install -y podman
+sudo dnf install -y fuse-overlayfs podman python-pip
 ```
 
 ## build the ansible container
