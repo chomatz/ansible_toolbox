@@ -2,6 +2,6 @@ collections/ansible_collections
 inv__*
 !inv__sample.yml
 keys/*
-!keys/KEYS.md
+!keys/ssh/SSH.md
 logs/*
 
