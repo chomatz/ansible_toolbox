@@ -12,6 +12,17 @@ centos/fedora/redhat/rocky
 ```
 sudo dnf install -y fuse-overlayfs podman python-pip
 ```
+steamdeck
+```
+sudo steamos-readonly disable
+sudo pacman -Syu fuse-overlayfs podman python-pip
+sudo steamos-readonly enable
+```
+
+## install ansible components
+```
+python3 -m pip install ansible-navigator --user
+```
 
 ## build the ansible container
 ```
