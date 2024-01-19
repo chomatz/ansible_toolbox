@@ -10,3 +10,9 @@
 [submodule "roles/mgmt__steam_deck"]
 	path = roles/mgmt__steam_deck
 	url = git@github.com:chomatz/mgmt__steam_deck.git
+[submodule "roles/prov__steam"]
+	path = roles/prov__steam
+	url = git@github.com:chomatz/prov__steam.git
+[submodule "roles/prov__xone"]
+	path = roles/prov__xone
+	url = git@github.com:chomatz/prov__xone.git
