@@ -38,6 +38,10 @@
         name: prov__steam
         tasks_from: sudo.yml
 
+    - name: deploy xone
+      ansible.builtin.include_role:
+        name: prov__xone
+
     - name: deploy kvm
       ansible.builtin.include_role:
         name: prov__battle_station
