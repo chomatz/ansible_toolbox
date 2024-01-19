@@ -30,8 +30,13 @@
 
     - name: deploy steam
       ansible.builtin.include_role:
-        name: prov__battle_station
+        name: prov__steam
         tasks_from: steam.yml
+
+    - name: steam via sudo
+      ansible.builtin.include_role:
+        name: prov__steam
+        tasks_from: sudo.yml
 
     - name: deploy kvm
       ansible.builtin.include_role:
