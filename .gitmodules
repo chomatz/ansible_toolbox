@@ -16,3 +16,6 @@
 [submodule "roles/prov__xone"]
 	path = roles/prov__xone
 	url = git@github.com:chomatz/prov__xone.git
+[submodule "roles/prov__kvm"]
+	path = roles/prov__kvm
+	url = git@github.com:chomatz/prov__kvm.git
