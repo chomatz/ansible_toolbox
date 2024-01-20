@@ -44,7 +44,6 @@
 
     - name: deploy kvm
       ansible.builtin.include_role:
-        name: prov__battle_station
-        tasks_from: kvm.yml
+        name: prov__kvm
 
 ...
