@@ -12,8 +12,13 @@
 
     - name: deploy gnome desktop
       ansible.builtin.include_role:
-        name: prov__battle_station
-        tasks_from: gnome.yml
+        name: prov__gnome
+        tasks_from: base.yml
+
+    - name: deploy gnome tweaks
+      ansible.builtin.include_role:
+        name: prov__gnome
+        tasks_from: tweaks.yml
 
     - name: enable epel repositories
       ansible.builtin.include_role:
