@@ -47,8 +47,14 @@
       ansible.builtin.include_role:
         name: prov__xone
 
-    - name: deploy kvm
+    - name: deploy libvirt
       ansible.builtin.include_role:
         name: prov__kvm
+        tasks_from: libvirt.yml
+
+    - name: deploy network bridge
+      ansible.builtin.include_role:
+        name: prov__kvm
+        tasks_from: bridge.yml
 
 ...
