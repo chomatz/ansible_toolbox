@@ -28,3 +28,6 @@
 [submodule "roles/prov__cockpit"]
 	path = roles/prov__cockpit
 	url = git@github.com:chomatz/prov__cockpit.git
+[submodule "roles/prov__chrony"]
+	path = roles/prov__chrony
+	url = git@github.com:chomatz/prov__chrony.git
