@@ -25,3 +25,6 @@
 [submodule "roles/mgmt__grub"]
 	path = roles/mgmt__grub
 	url = git@github.com:chomatz/mgmt__grub.git
+[submodule "roles/prov__cockpit"]
+	path = roles/prov__cockpit
+	url = git@github.com:chomatz/prov__cockpit.git
