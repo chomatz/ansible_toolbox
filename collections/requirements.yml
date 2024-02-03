@@ -3,6 +3,7 @@
 # ansible-galaxy install -r requirements.yml
 collections:
   - name: ansible.posix
+  - name: community.crypto
   - name: community.general
 
 ...
