@@ -1,0 +1,31 @@
+---
+
+- name: test mail
+  hosts: localhost
+
+  # notes:
+  # https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_ownca.html
+
+  vars:
+    mail_from: someone@test.net
+    rcpt_to:
+      - user1@home.int
+      - user2@home.int
+      - user3@home.int
+    subject: "test mail sent on {{ ansible_date_time.date }} {{ ansible_date_time.time }}"
+    body: this is a test message - please ignore
+    relay_host: 10.255.254.100
+    relay_port: 25
+
+  tasks:
+
+    - name: send a test message
+      community.general.mail:
+        host: "{{ relay_host }}"
+        port: "{{ relay_port }}"
+        from: "{{ mail_from }}"
+        to: "{{ rcpt_to }}"
+        subject: "{{ subject }}"
+        body: "{{ body }}"
+
+...

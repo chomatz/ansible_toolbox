@@ -1,0 +1,432 @@
+---
+
+- name: dovecot postfix provisioning
+  hosts: "{{ nodes }}"
+
+  # notes:
+  # https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_ownca.html
+
+  vars:
+    ssl:
+      bits: 8192
+      ca:
+        crt: /etc/pki/tls/certs/ca_certificate.pem
+        csr: /etc/pki/tls/certs/ca_request.csr
+        key: /etc/pki/tls/private/ca_private.pem
+        pass: eenie_meenie_mienie_moe
+      path:
+        crt: /etc/pki/tls/certs/certificate.pem
+        csr: /etc/pki/tls/certs/request.csr
+        dhp: /etc/pki/tls/certs/dhparam.pem
+        key: /etc/pki/tls/private/private.pem
+    dovecot:
+      filter:
+        dir: /var/spool/filter
+        user: filter
+      mail:
+        dir: /var/mail
+        user: dovemail
+    mailbox:
+      - user: user1
+        domain: home.int
+        salt: "{{ lookup('community.general.random_string', length=16, special=false) }}"
+      - user: user2
+        domain: home.int
+        salt: "{{ lookup('community.general.random_string', length=16, special=false) }}"
+      - user: user3
+        domain: home.int
+        salt: "{{ lookup('community.general.random_string', length=16, special=false) }}"
+      
+
+  tasks:
+
+    - name: install python cryptography library
+      ansible.builtin.package:
+        name: python3-cryptography
+        state: present
+
+    - name: "generate ca private key - {{ ssl.bits }}-bit"
+      community.crypto.openssl_privatekey:
+        path: "{{ ssl.ca.key }}"
+        passphrase: "{{ ssl.ca.pass }}"
+        size: "{{ ssl.bits }}"
+        cipher: auto
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: generate ca certificate signing request
+      community.crypto.openssl_csr:
+        path: "{{ ssl.ca.csr }}"
+        privatekey_path: "{{ ssl.ca.key }}"
+        privatekey_passphrase: "{{ ssl.ca.pass }}"
+        common_name: hero ca
+        use_common_name_for_san: false
+        basic_constraints:
+          - 'CA:TRUE'
+        basic_constraints_critical: true
+        key_usage:
+          - keyCertSign
+        key_usage_critical: true
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: generate signed ca certificate
+      community.crypto.x509_certificate:
+        path: "{{ ssl.ca.crt }}"
+        csr_path: "{{ ssl.ca.csr }}"
+        privatekey_path: "{{ ssl.ca.key }}"
+        privatekey_passphrase: "{{ ssl.ca.pass }}"
+        provider: selfsigned
+
+    - name: "generate private key - {{ ssl.bits }}-bit"
+      community.crypto.openssl_privatekey:
+        path: "{{ ssl.path.key }}"
+        size: "{{ ssl.bits }}"
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: generate certificate signing request
+      community.crypto.openssl_csr:
+        path: "{{ ssl.path.csr }}"
+        privatekey_path: "{{ ssl.path.key }}"
+        common_name: mailer.home.int
+        subject_alt_name: "DNS:smtp.home.int,DNS:mail.home.int"
+        country_name: JP
+        state_or_province_name: Saitama
+        locality_name: Saitama
+        organization_name: Hero Association
+        organizational_unit_name: Class C
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: generate signed certificate
+      community.crypto.x509_certificate:
+        path: "{{ ssl.path.crt }}"
+        csr_path: "{{ ssl.path.csr }}"
+        provider: ownca
+        ownca_path: "{{ ssl.ca.crt }}"
+        ownca_privatekey_path: "{{ ssl.ca.key }}"
+        ownca_privatekey_passphrase: "{{ ssl.ca.pass }}"
+        ownca_not_after: "+365d"
+        ownca_not_before: "-1d"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: "generate dh parameters - {{ ssl.bits }}-bit"
+      community.crypto.openssl_dhparam:
+        path: "{{ ssl.path.dhp }}"
+        size: "{{ ssl.bits }}"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: install dovecot
+      ansible.builtin.package:
+        name: dovecot
+        state: present
+
+    - name: configure dovecot ssl
+      ansible.builtin.lineinfile:
+        path: /etc/dovecot/conf.d/10-ssl.conf
+        regexp: '^#?{{ item.key }} ?='
+        line: "{{ item.key }} = <{{ item.value }}"
+        state: present
+      with_items:
+        - key: ssl_cert
+          value: "{{ ssl.path.crt }}"
+        - key: ssl_key
+          value: "{{ ssl.path.key }}"
+        - key: ssl_ca
+          value: "{{ ssl.ca.crt }}"
+        - key: ssl_dh
+          value: "{{ ssl.path.dhp }}"
+
+    - name: create virtual mailbox user
+      ansible.builtin.user:
+        name: "{{ dovecot.mail.user }}"
+        home: "{{ dovecot.mail.dir }}"
+        shell: /usr/sbin/nologin
+
+    - name: "provide ownership of {{ dovecot.mail.dir }} to {{ dovecot.mail.user }}"
+      ansible.builtin.file:
+        path: "{{ dovecot.mail.dir }}"
+        state: directory
+        owner: "{{ dovecot.mail.user }}"
+        group: "{{ dovecot.mail.user }}"
+        mode: "0700"
+
+    - name: configure authentication
+      ansible.builtin.lineinfile:
+        path: /etc/dovecot/conf.d/10-auth.conf
+        regexp: '^#?{{ item.key }} ?='
+        line: "{{ item.key }} = {{ item.value }}"
+        state: present
+      with_items:
+        - key: auth_username_format
+          value: "%Ln"
+
+    - name: configure mailbox directories
+      ansible.builtin.lineinfile:
+        path: /etc/dovecot/conf.d/10-mail.conf
+        regexp: '^#?{{ item.key }} ?='
+        line: "{{ item.key }} = {{ item.value }}"
+        state: present
+      with_items:
+        - key: mail_location
+          value: "sdbox:{{ dovecot.mail.dir }}/%n/"
+        - key: first_valid_uid
+          value: 1000
+
+    - name: set dovecot override_fields
+      ansible.builtin.replace:
+        path: /etc/dovecot/conf.d/auth-system.conf.ext
+        regexp: '#?override_fields ?=.*'
+        replace: "override_fields = uid={{ dovecot.mail.user }} gid={{ dovecot.mail.user }} home={{ dovecot.mail.dir }}/%n/"
+
+    - name: configure imap mailboxes
+      ansible.builtin.copy:
+        dest: /etc/dovecot/conf.d/15-mailboxes.conf
+        content: |
+          namespace inbox {
+            mailbox Drafts {
+              special_use = \Drafts
+              auto = subscribe
+            }
+            mailbox Junk {
+              special_use = \Junk
+              auto = subscribe
+            }
+            mailbox Trash {
+              special_use = \Trash
+              auto = subscribe
+            }
+           mailbox Sent {
+              special_use = \Sent
+              auto = subscribe
+            }
+          }
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: create lmtp socket
+      ansible.builtin.blockinfile:
+        path: /etc/dovecot/conf.d/10-master.conf
+        marker: "##### {mark} lmtp socket configuration #####"
+        block: |
+          service lmtp {
+            unix_listener lmtp {
+              mode = 0600
+              user = postfix
+              group = postfix
+            }
+          }
+
+    - name: enable service - dovecot
+      ansible.builtin.service:
+        name: dovecot
+        state: restarted
+        enabled: true
+
+    - name: remove sendmail
+      ansible.builtin.package:
+        name: sendmail
+        state: absent
+
+    - name: install postfix
+      ansible.builtin.package:
+        name: postfix
+        state: present
+
+    - name: configure customization in main.cf
+      ansible.builtin.lineinfile:
+        path: /etc/postfix/main.cf
+        regexp: '^{{ item.key }} ?='
+        line: "{{ item.key }} = {{ item.value }}"
+        state: present
+      with_items:
+        - key: inet_interfaces
+          value: all
+        - key: myhostname
+          value: mailer.home.int
+        - key: mydestination
+          value: '$mydomain'
+        - key: mydomain
+          value: home.int
+        - key: myorigin
+          value: '$mydomain'
+        - key: mynetworks
+          value: 10.0.0.0/8
+        - key: mailbox_transport
+          value: 'lmtp:unix:/var/run/dovecot/lmtp'
+        - key: virtual_alias_maps
+          value: hash:/etc/postfix/virtual
+        - key: smtputf8_enable
+          value: "no"
+
+    - name: verify postifx configuration
+      ansible.builtin.command:
+        cmd: postfix check
+
+    - name: configure firewall
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        immediate: true
+        permanent: true
+        state: enabled
+      with_items:
+        - pop3
+        - pop3s
+        - imap
+        - imaps
+        - smtp
+        - smtps
+        - smtp-submission
+
+    - name: show salt sample
+      ansible.builtin.debug:
+        var: lookup('community.general.random_string', length=16, special=false)
+        verbosity: 1
+
+    - name: provision mail users
+      ansible.builtin.user:
+        name: "{{ item.user }}"
+        password: "{{ item.user | password_hash('sha512', item.salt) }}"
+      with_items: "{{ mailbox }}"
+
+    - name: populate virtual alias maps
+      ansible.builtin.lineinfile:
+        path: /etc/postfix/virtual
+        line: "{{ item.user }}@{{ item.domain }} {{ item.user }}"
+        state: present
+      with_items: "{{ mailbox }}"
+
+    - name: create hash for virtual alias maps
+      ansible.builtin.command:
+        cmd: postmap /etc/postfix/virtual
+
+    - name: enable service - postfix
+      ansible.builtin.service:
+        name: postfix
+        state: restarted
+        enabled: true
+
+    - name: install altermime
+      ansible.builtin.package:
+        name: altermime
+        state: present
+
+    - name: create filter user
+      ansible.builtin.user:
+        name: "{{ dovecot.filter.user }}"
+        home: "{{ dovecot.filter.dir }}"
+        shell: /usr/sbin/nologin
+
+    - name: "set permissions on {{ dovecot.filter.dir }}"
+      ansible.builtin.file:
+        path: "{{ dovecot.filter.dir }}"
+        owner: "{{ dovecot.filter.user }}"
+        group: "{{ dovecot.filter.user }}"
+        mode: "0750"
+
+    - name: create disclaimer script
+      ansible.builtin.copy:
+        dest: /etc/postfix/disclaimer
+        content: |
+          #!/bin/env bash
+          INSPECT_DIR=/var/spool/filter
+          SENDMAIL=/usr/sbin/sendmail
+
+          # define our company address lists
+          disclaimer_source__home_int=/etc/postfix/disclaimer_source__home_int
+
+          # exit codes from <sysexits.h>
+          EX_TEMPFAIL=75
+          EX_UNAVAILABLE=69
+
+          # cean up when done or when aborting.
+          trap "rm -f in.$$" 0 1 2 3 15
+
+          # start processing.
+          cd $INSPECT_DIR || { echo $INSPECT_DIR does not exist; exit $EX_TEMPFAIL; }
+          cat > in.$$ || { echo Cannot save mail to file; exit $EX_TEMPFAIL; }
+
+          # obtain From address domain
+          from_address=`grep -m 1 "From:" in.$$ | cut -f 2 -d '@' | cut -d ">" -f 1`
+
+          # if the from address matches the domain then apply the appropiate disclaimer
+          if [ `grep -wi ^${from_address}$ ${disclaimer_source__home_int}` ]; then
+            /usr/bin/altermime --input=in.$$ \
+            --disclaimer=/etc/postfix/disclaimer_text__home_int \
+            --disclaimer-html=/etc/postfix/disclaimer_html__home_int || \
+            { echo Message content rejected; exit $EX_UNAVAILABLE; }
+          fi
+
+          # send the email on as per the postfix stack
+          $SENDMAIL "$@" <in.$$
+
+          exit $?
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: populate list of addresses with disclaimers
+      ansible.builtin.copy:
+        dest: /etc/postfix/disclaimer_source__home_int
+        content: |
+          home.int
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: create text disclaimer
+      ansible.builtin.copy:
+        dest: /etc/postfix/disclaimer_text__home_int
+        content: |
+          ---------------
+          text disclaimer
+          ---------------
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: create html disclaimer
+      ansible.builtin.copy:
+        dest: /etc/postfix/disclaimer_html__home_int
+        content: |
+          <hr>
+          html disclaimer
+          <hr>
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: enable dfilt in /etc/postfix/master.cf
+      ansible.builtin.lineinfile:
+        path: /etc/postfix/master.cf
+        insertafter: '^smtp.*inet.*n.*-.*n.*-.*-.*smtpd'
+        firstmatch: true
+        line: "  -o content_filter=dfilt"
+        state: present
+
+    - name: add dfilt options in /etc/postfix/master.cf
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/master.cf
+        marker: "##### {mark} ANSIBLE MANAGED BLOCK #####"
+        insertafter: '^postlog.*unix-dgram.*n.*-.*n.*-.*1.*postlogd'
+        block: |
+          dfilt     unix  -       n       n       -       -       pipe
+            flags=Rq user=filter argv=/etc/postfix/disclaimer -f ${sender} — ${recipient}
+
+    - name: enable service - postfix
+      ansible.builtin.service:
+        name: postfix
+        state: restarted
+        enabled: true
+
+...

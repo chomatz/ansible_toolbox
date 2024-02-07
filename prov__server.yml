@@ -1,0 +1,13 @@
+---
+
+- name: provision server
+  hosts: "{{ nodes }}"
+
+  tasks:
+
+    - name: deploy baseline configuration
+      ansible.builtin.include_role:
+        name: prov__battle_station
+        tasks_from: baseline.yml
+
+...
