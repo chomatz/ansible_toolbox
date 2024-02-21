@@ -31,3 +31,6 @@
 [submodule "roles/prov__chrony"]
 	path = roles/prov__chrony
 	url = git@github.com:chomatz/prov__chrony.git
+[submodule "roles/prov__vim"]
+	path = roles/prov__vim
+	url = git@github.com:chomatz/prov__vim.git
