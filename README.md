@@ -38,5 +38,5 @@ mv ~/.ansible/collections/ansible_collections collections/.
 
 ## usage
 ```
-ansible-navigator -m stdout run <playbook.yml> --senv ANSIBLE_STDOUT_CALLBACK=yaml -- -e "nodes=<inventory_target>"
+ansible-navigator -m stdout run <playbook.yml> -- -e "nodes=<inventory_target>"
 ```
