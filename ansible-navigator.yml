@@ -8,6 +8,9 @@ ansible-navigator:
   execution-environment:
     container-engine: podman
     enabled: true
+    environment-variables:
+      set:
+        ANSIBLE_STDOUT_CALLBACK: yaml
     image: localhost/ansible:latest
     pull:
       policy: missing
