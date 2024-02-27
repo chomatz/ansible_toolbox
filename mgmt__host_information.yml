@@ -5,7 +5,7 @@
 
   tasks:
 
-    - name: displat host information
+    - name: display host information
       ansible.builtin.debug:
         var: hostvars[inventory_hostname]
 
