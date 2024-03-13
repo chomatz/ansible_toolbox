@@ -34,3 +34,6 @@
 [submodule "roles/prov__vim"]
 	path = roles/prov__vim
 	url = git@github.com:chomatz/prov__vim.git
+[submodule "roles/prov__pi-hole"]
+	path = roles/prov__pi-hole
+	url = git@github.com:chomatz/prov__pi-hole.git
