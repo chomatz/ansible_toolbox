@@ -2,6 +2,7 @@
 
 for submodule in *; do
 	if [ -d "$submodule" ]; then
+		git submodule update "$submodule"
 		cd "$submodule"
 		echo
 		echo "checking submodule - $submodule"
