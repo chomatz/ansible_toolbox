@@ -3,6 +3,10 @@
 - name: provision battle station
   hosts: "{{ nodes }}"
 
+  vars:
+
+    hostname_format: host
+
   tasks:
 
     - name: deploy baseline configuration
