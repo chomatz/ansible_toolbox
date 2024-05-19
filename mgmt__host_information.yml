@@ -1,11 +1,11 @@
 ---
 
-- name: provision battle station
+- name: gather node information
   hosts: "{{ nodes }}"
 
   tasks:
 
-    - name: display host information
+    - name: display node information
       ansible.builtin.debug:
         var: hostvars[inventory_hostname]
 
