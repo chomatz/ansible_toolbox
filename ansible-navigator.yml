@@ -7,6 +7,8 @@ ansible-navigator:
         - inv__nodes.yml
   execution-environment:
     container-engine: podman
+    container-options:
+      - "--net=host"
     enabled: true
     environment-variables:
       set:
@@ -20,5 +22,8 @@ ansible-navigator:
     file: logs/ansible-navigator.log
   playbook-artifact:
     save-as: logs/{playbook_name}-artifact-{time_stamp}.json
+
+# ANSIBLE_STDOUT_CALLBACK is set because it is ignored in ansible.cfg
+# --net=host is set to allow the execution environment to connect via ssh to the container host
 
 ...
